@@ -31,11 +31,14 @@ export default class App extends Component {
       const newNotification = {type: "postNotification", content: `${this.state.currentUser.name} has changed their name to ${message.username}`}
       this.state.currentUser.name = message.username;
       // console.log('newNotification: ', newNotification);
-      this.sendMessage({message: newNotification});
+      this.sendMessage(newNotification);
     }
     // send message to server
-    const newMessage = {type: "postMessage", username: message.username, content: message.content};
-    this.sendMessage({message: newMessage});
+    const newMessage = {
+      type: "postMessage",
+      username: message.username,
+      content: message.content};
+    this.sendMessage(newMessage);
         console.log('message: ', message);
 
   }
@@ -49,10 +52,8 @@ export default class App extends Component {
 
     this.socket.onmessage = payload => {
       // let serverData = JSON.parse(e.data);
-      const json = JSON.parse(payload.data);
+      const json = JSON.parse(payload.data)
       // console.log('data coming back from server: ', json);
-
-      const serverDataArray =[];
       if(Number.isInteger(json.counter)) {
         this.state.onlineUsers = json.counter;
       }
@@ -60,20 +61,22 @@ export default class App extends Component {
         switch(json.type) {
           case "incomingMessage":
             this.setState({
-              serverDataArray: [...this.state.messages, json]
+              messages: [...this.state.messages, json]
             });
             break;
           case "incomingNotification":
             this.setState({
-              serverDataArray: [...this.state.messages, json]
+              messages: [...this.state.messages, json]
             });
             break;
           case 'initial-messages':
-            this.setState({ serverDataArray: json.messages });
+            this.setState({
+              messages: json.messages
+            });
             break;
           default:
            //show error in console if message type is unknown
-            throw new Error("Unknown event type: " + data.type);
+            throw new Error("Unknown event type: " + json.type);
         }
       }
     }

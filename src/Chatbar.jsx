@@ -31,7 +31,10 @@ export default class Chatbar extends Component {
   handleSubmit = (event) => {
     if(event.key === "Enter") {
       // console.log(this.state)
-      this.props.handleInsertMessage(this.state);
+      this.props.handleInsertMessage({
+        content: this.state.content,
+        username: this.state.username
+      });
       this.setState({content:''})
     }
   }

@@ -28,19 +28,21 @@ wss.on('connection', (ws) => {
   if(ws) {
     onlineUsers.counter++
     // console.log(onlineUsers.counter);
+
+
+  }
+
+  wss.broadcast = data => {
+    wss.clients.forEach(ws => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify(data));
+        // console.log('data here: ', data)
+        console.log('data sent to client from server: ', data);
+      }
+    });
   };
 
-wss.broadcast = data => {
-  wss.clients.forEach(ws => {
-    if (ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify(data));
-      // console.log('data here: ', data)
-      console.log('data sent to client from server: ', data);
-    }
-  });
-};
-wss.broadcast(onlineUsers);
-
+  wss.broadcast(onlineUsers);
 
   // wss.broadcast = (data) => {
   //   wss.clients.forEach(function each(client) {
@@ -51,35 +53,39 @@ wss.broadcast(onlineUsers);
   //   });
   // };
 
- ws.on('message', (data) => {
-    const objData = JSON.parse(data);
+   ws.on('message', (data) => {
+    console.log('HELLOOOOO')
+      const objData = JSON.parse(data);
 
-    switch (objData.type) {
-      case 'postMessage': {
-        const objectToBroadcast = {
-          id: uuid(),
-          type: 'incomingMessage',
-          username: objData.username,
-          content: objData.content
-        };
-        console.log("objectToBroadcast: ", objectToBroadcast)
-        messageDatabase.push(objectToBroadcast);
-        wss.broadcastJSON(objectToBroadcast);
-        break; }
-      case 'postNotification': {
-        const objectToBroadcast = {
-          id: uuid(),
-          type: 'incomingNotification',
-          content: objData.message
-        };
-        messageDatabase.push(wss.broadcastJSON(objectToBroadcast));
-        wss.broadcastJSON(objectToBroadcast);
-        break;
+      console.log(" obj data>>> ", objData)
+
+      switch (objData.type) {
+        case 'postMessage': {
+          const objectToBroadcast = {
+            id: uuid(),
+            type: 'incomingMessage',
+            username: objData.username,
+            content: objData.content
+          };
+          console.log(">>> objectToBroadcast ", objectToBroadcast)
+          console.log("objectToBroadcast: ", objectToBroadcast)
+          messageDatabase.push(objectToBroadcast);
+          wss.broadcast(objectToBroadcast);
+          break; }
+        case 'postNotification': {
+          const objectToBroadcast = {
+            id: uuid(),
+            type: 'incomingNotification',
+            content: objData.message
+          };
+          messageDatabase.push(wss.broadcastJSON(objectToBroadcast));
+          wss.broadcastJSON(objectToBroadcast);
+          break;
+        }
+        default:
       }
-      default:
-    }
 
-});
+  });
 
   const initialMessage = {
     type: 'initial-messages',
@@ -93,7 +99,7 @@ wss.broadcast(onlineUsers);
   ws.on('close', () => {
     console.log('Client disconnected');
     onlineUsers.counter--;
-    wss.broadcast(onlineUsers);
+    wss.broadcastJSON(onlineUsers);
   });
 
 });
