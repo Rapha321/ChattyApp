@@ -14,10 +14,12 @@ export default class Chatbar extends Component {
 
 
   handleNameChange = (event) => {
+    // event.preventDefault()
     this.setState({username: event.target.value});
   }
 
   handleNameSubmit = (event) => {
+    // event.preventDefault()
     if(event.key === "Enter") {
       this.props.currentUser(this.state);
       this.setState({username: event.target.value});

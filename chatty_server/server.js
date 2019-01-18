@@ -28,8 +28,6 @@ wss.on('connection', (ws) => {
   if(ws) {
     onlineUsers.counter++
     // console.log(onlineUsers.counter);
-
-
   }
 
   wss.broadcast = data => {
@@ -57,7 +55,7 @@ wss.on('connection', (ws) => {
     console.log('HELLOOOOO')
       const objData = JSON.parse(data);
 
-      console.log(" obj data>>> ", objData)
+      // console.log(" message>>> ", message)
 
       switch (objData.type) {
         case 'postMessage': {
@@ -67,7 +65,7 @@ wss.on('connection', (ws) => {
             username: objData.username,
             content: objData.content
           };
-          console.log(">>> objectToBroadcast ", objectToBroadcast)
+          console.log(">>> objData ", objData)
           console.log("objectToBroadcast: ", objectToBroadcast)
           messageDatabase.push(objectToBroadcast);
           wss.broadcast(objectToBroadcast);
@@ -101,9 +99,7 @@ wss.on('connection', (ws) => {
     onlineUsers.counter--;
     wss.broadcastJSON(onlineUsers);
   });
-
 });
-
 
 
 

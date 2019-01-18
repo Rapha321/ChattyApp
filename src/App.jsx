@@ -28,18 +28,21 @@ export default class App extends Component {
 
   handleInsertMessage(message) {
     if(this.state.currentUser.name !== message.username) {
-      const newNotification = {type: "postNotification", content: `${this.state.currentUser.name} has changed their name to ${message.username}`}
+      // console.log('message: ', message);
+      const newNotification = {type: "postNotification", content: `${this.state.currentUser.name} has changed his name to ${message.username}`}
       this.state.currentUser.name = message.username;
-      // console.log('newNotification: ', newNotification);
+      console.log('newNotification: ', newNotification);
       this.sendMessage(newNotification);
     }
-    // send message to server
-    const newMessage = {
-      type: "postMessage",
-      username: message.username,
-      content: message.content};
-    this.sendMessage(newMessage);
-        console.log('message: ', message);
+    else {
+      // send message to server
+      const newMessage = {
+        type: "postMessage",
+        username: message.username,
+        content: message.content
+      };
+      this.sendMessage(newMessage);
+    }
 
   }
 
@@ -76,7 +79,7 @@ export default class App extends Component {
             break;
           default:
            //show error in console if message type is unknown
-            throw new Error("Unknown event type: " + json.type);
+            // throw new Error("Unknown event type: " + payload.data.type);
         }
       }
     }
@@ -126,5 +129,4 @@ export default class App extends Component {
     );
   }
 }
-
 

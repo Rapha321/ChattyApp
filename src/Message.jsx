@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 
-
-export default class Message extends Component {
+class Message extends Component {
   render() {
     return (
       <div className="message">
@@ -11,3 +10,5 @@ export default class Message extends Component {
     );
   }
 }
+
+export default Message;
