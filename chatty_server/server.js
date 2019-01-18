@@ -27,7 +27,6 @@ wss.on('connection', (ws) => {
   console.log('Client connected');
   if(ws) {
     onlineUsers.counter++
-    // console.log(onlineUsers.counter);
   }
 
   wss.broadcast = data => {
@@ -42,20 +41,10 @@ wss.on('connection', (ws) => {
 
   wss.broadcast(onlineUsers);
 
-  // wss.broadcast = (data) => {
-  //   wss.clients.forEach(function each(client) {
-  //     // if (client.readyState === SocketServer.OPEN) {
-  //     client.send(JSON.stringify(data));
-  //     console.log('data sent to client from server');
-  //     // }
-  //   });
-  // };
 
-   ws.on('message', (data) => {
-    console.log('HELLOOOOO')
+
+  ws.on('message', (data) => {
       const objData = JSON.parse(data);
-
-      // console.log(" message>>> ", message)
 
       switch (objData.type) {
         case 'postMessage': {
@@ -68,21 +57,20 @@ wss.on('connection', (ws) => {
           console.log(">>> objData ", objData)
           console.log("objectToBroadcast: ", objectToBroadcast)
           messageDatabase.push(objectToBroadcast);
-          wss.broadcast(objectToBroadcast);
+          wss.broadcastJSON(objectToBroadcast);
           break; }
         case 'postNotification': {
           const objectToBroadcast = {
             id: uuid(),
             type: 'incomingNotification',
-            content: objData.message
+            content: objData.content
           };
-          messageDatabase.push(wss.broadcastJSON(objectToBroadcast));
+          messageDatabase.push(objectToBroadcast);
           wss.broadcastJSON(objectToBroadcast);
           break;
         }
         default:
       }
-
   });
 
   const initialMessage = {

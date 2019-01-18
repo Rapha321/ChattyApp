@@ -5,7 +5,6 @@ export default class Notification extends Component {
     return (
       <div className="message system">
         {this.props.content}
-        console.log("Notification: ", content)
       </div>
     );
   }
