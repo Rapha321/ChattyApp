@@ -17,13 +17,14 @@ export default class App extends Component {
     this.componentDidMount = this.componentDidMount.bind(this);
   }
 
-  sendMessage(message) {
-    this.socket.send(JSON.stringify(message));
-    console.log('message sent to the server from client');
-  }
 
-//if user change name, send notification to main
+  //if user change name, send notification to main + message content
   handleInsertMessage(message) {
+    const newMessage = {
+      type: "postMessage",
+      username: message.username,
+      content: message.content
+    };
     if(this.state.currentUser.name !== message.username) {
       const newNotification = {
         type: "postNotification",
@@ -31,23 +32,19 @@ export default class App extends Component {
       }
       this.state.currentUser.name = message.username;
       this.sendMessage(newNotification);
-
-      const newMessage = {
-        type: "postMessage",
-        username: message.username,
-        content: message.content
-      };
       this.sendMessage(newMessage);
     }
     else {
-      const newMessage = {
-        type: "postMessage",
-        username: message.username,
-        content: message.content
-      };
       this.sendMessage(newMessage);
     }
   }
+
+  sendMessage(message) {
+    this.socket.send(JSON.stringify(message));
+    // document.location.reload();
+    console.log('message sent to the server from client');
+  }
+
 
   componentDidMount() {
     this.socket = new WebSocket("ws://localhost:3001");
@@ -59,13 +56,15 @@ export default class App extends Component {
     this.socket.onmessage = payload => {
       // let serverData = JSON.parse(e.data);
       const json = JSON.parse(payload.data)
-      // console.log('data coming back from server: ', json);
+
       if(Number.isInteger(json.counter)) {
         this.state.onlineUsers = json.counter;
       }
       else {
+        console.log(payload);
         switch(json.type) {
           case "incomingMessage":
+            console.log("incomingMessage: ", json)
             this.setState({
               messages: [...this.state.messages, json]
             });
@@ -76,6 +75,7 @@ export default class App extends Component {
             });
             break;
           case 'initial-messages':
+            console.log('initial-messages: ', json)
             this.setState({
               messages: json.messages
             });
@@ -85,7 +85,6 @@ export default class App extends Component {
         }
       }
     }
-
   }
 
 
