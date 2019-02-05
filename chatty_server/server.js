@@ -15,7 +15,7 @@ const server = express()
 // Create the WebSockets server
 const wss = new SocketServer({ server });
 const messageDatabase = [];
-const onlineUsers= {counter: 0};
+const onlineUsers = {counter: 0};
 
 // Set up a callback that will run when a client connects to the server
 // When a client connects they are assigned a socket, represented by
@@ -34,14 +34,17 @@ wss.broadcastJSON = obj => wss.broadcast(JSON.stringify(obj));
 
 wss.on('connection', (ws) => {
   console.log('Client connected');
-  if(ws) {
-    onlineUsers.counter++
+
+  const objectToBroadcast = {
+    type: 'newClientConnected',
+    clientCount: wss.clients.size
   }
 
-  wss.broadcastJSON(onlineUsers);
+  wss.broadcastJSON(objectToBroadcast);
 
   ws.on('message', (data) => {
       const objData = JSON.parse(data);
+
       switch (objData.type) {
         case 'postMessage': {
           const objectToBroadcast = {
@@ -50,11 +53,12 @@ wss.on('connection', (ws) => {
             username: objData.username,
             content: objData.content
           };
-          console.log(">>> objData ", objData)
-          console.log("objectToBroadcast: ", objectToBroadcast)
+          // console.log(">>> objData ", objData)
+          // console.log("objectToBroadcast: ", objectToBroadcast)
           messageDatabase.push(objectToBroadcast);
           wss.broadcastJSON(objectToBroadcast);
           break; }
+
         case 'postNotification': {
           const objectToBroadcast = {
             id: uuid(),
@@ -79,8 +83,11 @@ wss.on('connection', (ws) => {
   // Set up a callback for when a client closes the socket. This usually means they closed their browser.
   ws.on('close', () => {
     console.log('Client disconnected');
-    onlineUsers.counter--;
-    wss.broadcastJSON(onlineUsers);
+    const objectToBroadcast = {
+      type: 'newClientConnected',
+      clientCount: wss.clients.size
+    }
+    wss.broadcastJSON(objectToBroadcast);
   });
 });
 

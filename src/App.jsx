@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import Chatbar from './Chatbar.jsx';
 import MessageList from './MessageList.jsx';
+import NavBar from './NavBar.jsx';
 
 
 export default class App extends Component {
   constructor(props) {
     super(props);
+    clients: '',
     this.state = {
       currentUser: {name: "Anonymous"},
       messages: [],
@@ -30,9 +32,11 @@ export default class App extends Component {
         type: "postNotification",
         content: `${this.state.currentUser.name} has changed his name to ${message.username}`
       }
-      this.state.currentUser.name = message.username;
+      this.setState({
+         currentUser: {name: message.username}
+        })
       this.sendMessage(newNotification);
-      this.sendMessage(newMessage);
+      // this.sendMessage(newMessage);
     }
     else {
       this.sendMessage(newMessage);
@@ -41,7 +45,6 @@ export default class App extends Component {
 
   sendMessage(message) {
     this.socket.send(JSON.stringify(message));
-    // document.location.reload();
     console.log('message sent to the server from client');
   }
 
@@ -57,12 +60,15 @@ export default class App extends Component {
       // let serverData = JSON.parse(e.data);
       const json = JSON.parse(payload.data)
 
-      if(Number.isInteger(json.counter)) {
-        this.state.onlineUsers = json.counter;
-      }
-      else {
-        console.log(payload);
+
+
+        // console.log(payload);
         switch(json.type) {
+          case 'newClientConnected':
+            this.setState({
+            clients: json.clientCount
+          });
+          break;
           case "incomingMessage":
             console.log("incomingMessage: ", json)
             this.setState({
@@ -83,25 +89,20 @@ export default class App extends Component {
           default:
 
         }
-      }
+
     }
   }
+
 
 
   render() {
     return (
       <div>
-        <nav className="navbar">
-          <a href="/" className="navbar-brand">Chatty</a>
-            {
-              this.state.onlineUsers ? <a className="navbar-counter"> {this.state.onlineUsers} users online</a> : <a className="navbar-counter"> 0 users online</a>
-            }
-        </nav>
+        <NavBar userCount={this.state.clients} />
 
-      <main className="messages" >
         <MessageList messages={this.state.messages} />
         <Chatbar currentUser={this.state.currentUser} handleInsertMessage={this.handleInsertMessage} sendMessage={this.sendMessage}/>
-      </main>
+
 
       </div>
     );

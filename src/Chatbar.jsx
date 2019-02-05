@@ -18,7 +18,7 @@ export default class Chatbar extends Component {
 
   handleNameSubmit = (event) => {
     if(event.key === "Enter") {
-      this.props.currentUser(this.state);
+      // this.props.currentUser(this.state);
       this.setState({username: event.target.value});
     }
   }
